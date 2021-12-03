@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val IMAGEURL = "https://raw.githubusercontent.com/DevTides/JetpackDogsApp/master/app/src/main/res/drawable/dog.png"
+    //Se crea un Scope en el hilo main para que nos permita realizar actualizaciones dentro de la UI
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,10 +29,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         coroutineScope.launch {
+            //Cambiamos de Dispatches debido a que IO es necesario para hacer consumos de network y demas
             val originalDeferred = coroutineScope.async(Dispatchers.IO) {
                 getOriginalBitmap()
             }
             val originalBitmap =  originalDeferred.await()
+            //Cambios de dispatches nuevamente debido a que al modificar la imagen necesitamos poder de CPU y el default nos garantiza eso
             val filterDeferred = coroutineScope.async(Dispatchers.Default){
                 applyFilter(originalBitmap)
             }
